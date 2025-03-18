@@ -62,6 +62,45 @@ I/O 大小(最小/最佳)：512 字节 / 512 字节
 sudo dd if=sd_backup.img of=/dev/sda bs=4M status=progress conv=sync
 ```
 
+通过如下命令将镜像文件拆分成小文件，方便上传
+
+```
+split -b 1G --verbose sd_backup.img sd_backup.img.part
+```
+
+生成完整性校验文件
+
+```
+# 生成原始镜像的哈希值
+sha256sum sd_backup.img > sd_backup.img.sha256
+
+# 生成所有分块的哈希值（可选）
+sha256sum sd_backup.img.part* > sd_backup.parts.sha256
+```
+
+合并分块文件
+
+```
+cat sd_backup.img.part* > sd_backup_restored.img
+```
+
+校验合并后的镜像
+
+```
+sha256sum -c sd_backup.img.sha256
+```
+
+输出 sd_backup.img: OK 表示合并后的文件完整无误。
+
+​校验分块文件（可选）​
+
+```
+sha256sum -c sd_backup.parts.sha256
+```
+
+确保所有分块在传输或存储过程中未损坏。
+
+
 ## 参考
 
 本项目地址
