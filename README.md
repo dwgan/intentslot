@@ -105,6 +105,41 @@ print(model.detect('可以启动二楼的射灯吗'))
 
 或者直接运行`python test.py '请打开二楼的灯'`
 
+## 如何克隆树莓派镜像
+
+在开发过程中，定期备份是一个好习惯，可以在出现意外情况时保证损失最小。
+
+在Uubntu下，将树莓派的SD卡通过读卡器插入电脑，查看磁盘信息
+
+```
+(base) acc@acc-server:~$ sudo fdisk -l
+Disk /dev/sda：29.72 GiB，31914983424 字节，62333952 个扇区
+Disk model: SD Card Reader  
+单元：扇区 / 1 * 512 = 512 字节
+扇区大小(逻辑/物理)：512 字节 / 512 字节
+I/O 大小(最小/最佳)：512 字节 / 512 字节
+磁盘标签类型：dos
+磁盘标识符：0xc35fc243
+
+设备       启动    起点     末尾     扇区  大小 Id 类型
+/dev/sda1          8192  1056767  1048576  512M  c W95 FAT32 (LBA)
+/dev/sda2       1056768 62333951 61277184 29.2G 83 Linux
+```
+
+可以看到SD卡对应的设备是`/dev/sda`，通过下面的命令可以克隆SD卡到文件
+
+```
+(base) acc@acc-server:~$ sudo dd if=/dev/sda of=sd_backup1.img bs=4M status=progress conv=sync
+276824064 字节 (277 MB, 264 MiB) 已复制，3 s，92.2 MB/s
+```
+
+通过如下命令将镜像恢复到SD卡
+
+```
+sudo dd if=sd_backup.img of=/dev/sda bs=4M status=progress conv=sync
+```
+
+
 ## 参考
 
 本项目地址
