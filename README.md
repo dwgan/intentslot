@@ -81,7 +81,7 @@ sha256sum sd_backup.img.part* > sd_backup.parts.sha256
 合并分块文件
 
 ```
-cat sd_backup.img.part* > sd_backup_restored.img
+cat sd_backup.img.part* > sd_backup.img
 ```
 
 校验合并后的镜像
