@@ -1,0 +1,75 @@
+# -*- coding: utf-8 -*-
+
+# 设备类型映射表（需要根据实际设备配置修改）
+DEVICE_MAPPING = {
+    # 格式：设备名称: (设备类型, 设备ID)
+    "大门":    (0x05, 0x01),
+    "充电桩":  (0x04, 0x01),
+    "光伏":    (0x06, 0x02),
+    "冰箱":    (0x09, 0x01),
+    "阀门":    (0x08, 0x02),
+    "窗帘":    (0x07, 0x03),
+    "风扇":    (0x03, 0x04),
+    "空调":    (0x03, 0x05),
+    "总开关":  (0x01, 0x01),
+    "一号灯":  (0x02, 0x02),
+    "二号灯":  (0x02, 0x03),
+    "三号灯":  (0x02, 0x04),
+    "四号灯":  (0x02, 0x05),
+    "大灯":    (0x02, 0x06), 
+    "射灯":    (0x02, 0x07),
+    "灯带":    (0x02, 0x08),
+    "彩灯":    (0x02, 0x09),
+    "灯":      (0x02, 0x10)
+}
+
+# 动作指令映射
+ACTION_MAPPING = {
+    "OPEN": 0x01,
+    "CLOSE": 0x00
+}
+
+def convert_command(intent: str, slots: dict) -> bytes:
+    # 获取设备名称（从列表中提取第一个元素）
+    device_list = slots.get("device")
+    if not device_list or len(device_list) == 0:
+        raise ValueError("设备名称不能为空")
+    
+    device_name = device_list[0]  # 关键修改：提取列表中的第一个元素    
+    # 查找设备映射
+    device_info = DEVICE_MAPPING.get(device_name)
+    if not device_info:
+        raise ValueError(f"未知设备: {device_name}")
+    
+    # 解析设备信息
+    dev_type, dev_id = device_info
+    
+    # 获取动作指令
+    action = ACTION_MAPPING.get(intent)
+    if action is None:
+        raise ValueError(f"未知意图: {intent}")
+    
+    # 构建指令包（注意转换为字节）
+    packet = [
+        0x7E,           # 包头
+        dev_type,       # 设备类型
+        dev_id,         # 设备ID
+        action,         # 动作指令
+        0x7F            # 包尾
+    ]
+    
+    return bytes(packet)
+
+# 使用示例
+if __name__ == "__main__":
+    # 模拟输入（来自NLU的输出）
+    test_case = {
+        "intent": "OPEN",
+        "slots": {"device": "一号灯"}
+    }
+    
+    try:
+        cmd = convert_command(test_case["intent"], test_case["slots"])
+        print(f"生成的串口指令: {cmd.hex(' ')}")  # 输出: 7e 01 02 01 7f
+    except ValueError as e:
+        print(f"指令生成失败: {str(e)}")

@@ -4,6 +4,7 @@ from auto_record import auto_record
 from detector import JointIntentSlotDetector
 import serial
 from send_command import send_command
+from convert_command import convert_command
 
 print('正在加载模型...')
 
@@ -24,7 +25,7 @@ try:
         
         # 录音流程
         auto_record(output_filename="record.wav", min_record_time=2, silence_timeout=1)
-        print('正在转文字...\n')
+        print('\n正在转文字...\n')
         
         # 语音识别
         result = model_wenet.transcribe('record.wav')
@@ -32,11 +33,22 @@ try:
         
         # 意图识别
         text = [result['text']]
-        bert_output = model_bert.detect(text)
-        print(bert_output[0])
-        
-        # 发送指令
-        send_command(serial_port, bert_output[0])
+        bert_output = model_bert.detect(text)[0]
+        print(bert_output)
+
+        # 转换指令
+
+        command_list = convert_command(bert_output["intent"], bert_output["slots"])
+
+#        cmd = convert_command(bert_output["intent"], bert_output["slots"])
+#         cmd = convert_command(bert_output)
+        if command_list != None:
+            for cmd in command_list:
+                if cmd:
+                    print(f"📤 发送指令: {cmd}")
+                    serial_port.write(cmd)
+                else:
+                    print("⛔ 未执行任何操作")
 
 except KeyboardInterrupt:
     print("\n程序已终止")

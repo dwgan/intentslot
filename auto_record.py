@@ -74,6 +74,7 @@ def auto_record(output_filename="output.wav", min_record_time=2, silence_timeout
             # 结束录音
             stream.stop_stream()
             stream.close()
+            p.terminate()
 
         return frames
 

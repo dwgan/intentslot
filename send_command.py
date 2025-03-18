@@ -14,3 +14,5 @@ def send_command(serial_port, data):
 
     # 发送修改后的字节数组
     serial_port.write(cmd_array)  # 必须发送 cmd_array 而非原 cmd
+
+
